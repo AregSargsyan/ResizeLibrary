@@ -3,6 +3,8 @@
 Angular directive that allows element to be resized in all directions.
 Works without adding borders to the element.This directive is very light and will not trigger change Detection because it works outside of NgZone
 
+[![GitHub stars](https://img.shields.io/github/stars/AregSargsyan/ResizeLibrary.svg)](https://github.com/AregSargsyan/ResizeLibrary/stargazers)
+
 ## Demo
 https://aregsargsyan.github.io/DemoForResizerReusableModule/  
 
