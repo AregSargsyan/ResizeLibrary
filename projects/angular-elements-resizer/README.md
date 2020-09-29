@@ -4,7 +4,7 @@ Angular directive that allows element to be resized in all directions.
 Works without adding borders to the element.This directive is very light and will not trigger change Detection because it works outside of NgZone
 
 ## Demo
-https://aregsargsyan.github.io/DemoForResizerReusableModule/  
+https://aregsargsyan.github.io/DemoForResizerReusableModule/
 
 ## Usage
 
