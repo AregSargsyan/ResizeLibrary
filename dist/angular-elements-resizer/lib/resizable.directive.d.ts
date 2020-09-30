@@ -1,6 +1,10 @@
-import { ElementRef, Renderer2, NgZone } from '@angular/core';
+import { EventEmitter, ElementRef, Renderer2, NgZone } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 export declare type ResizeDirection = 'top' | 'bottom' | 'right' | 'left' | 'top_right' | 'bottom_right' | 'bottom_left' | 'top_left' | false;
+export interface EventInterface {
+    elementStyles: CSSStyleDeclaration;
+    mouseevent: MouseEvent;
+}
 export declare class ResizableDirective {
     private renderer;
     private elementRef;
@@ -29,6 +33,9 @@ export declare class ResizableDirective {
     mouseMoveonDocument$: Subscription;
     mouseUpOnDocument$: Subscription;
     onDestroy$: Subject<void>;
+    resizingStart: EventEmitter<EventInterface>;
+    resizingElement: EventEmitter<EventInterface>;
+    resizingEnd: EventEmitter<EventInterface>;
     constructor(renderer: Renderer2, elementRef: ElementRef, zone: NgZone);
     private mouseMoveOnElement;
     private onMouseDown;
@@ -38,6 +45,7 @@ export declare class ResizableDirective {
     private resizeElementFromTheRight;
     private resizeElementFromTheLeft;
     private onMouseUp;
+    private outputData;
     private setSubscriptions;
     ngOnInit(): void;
     ngOnDestroy(): void;

@@ -25,6 +25,9 @@
             this.hostMaxHeight = 0;
             this.hostMinHeight = 0;
             this.onDestroy$ = new rxjs.Subject();
+            this.resizingStart = new core.EventEmitter();
+            this.resizingElement = new core.EventEmitter();
+            this.resizingEnd = new core.EventEmitter();
         }
         ResizableDirective.prototype.mouseMoveOnElement = function (event) {
             var elRightBorder = this.hostCoordinates.right;
@@ -94,6 +97,7 @@
                 this.isGrabbing = true;
                 this.previousX = event.clientX;
                 this.previousY = event.clientY;
+                this.resizingStart.emit(this.outputData(event));
                 event.preventDefault();
             }
         };
@@ -127,6 +131,7 @@
                     this.resizeElementFromTheLeft(event);
                     this.resizeElementFromTheBottom(event);
                 }
+                this.resizingElement.emit(this.outputData(event));
             }
             this.hostCoordinates = this.elementRef.nativeElement.getBoundingClientRect();
         };
@@ -198,10 +203,17 @@
                 }
             }
         };
-        ResizableDirective.prototype.onMouseUp = function () {
+        ResizableDirective.prototype.onMouseUp = function (event) {
             if (this.isGrabbing) {
+                this.resizingEnd.emit(this.outputData(event));
                 this.isGrabbing = false;
             }
+        };
+        ResizableDirective.prototype.outputData = function (event) {
+            return {
+                elementStyles: getComputedStyle(this.elementRef.nativeElement),
+                mouseevent: event
+            };
         };
         ResizableDirective.prototype.setSubscriptions = function () {
             var _this = this;
@@ -216,7 +228,7 @@
                 .subscribe(function (event) { return _this.onMouseMove(event); });
             this.mouseUpOnDocument$ = rxjs.fromEvent(document, 'mouseup')
                 .pipe(operators.takeUntil(this.onDestroy$))
-                .subscribe(function () { return _this.onMouseUp(); });
+                .subscribe(function (event) { return _this.onMouseUp(event); });
         };
         ResizableDirective.prototype.ngOnInit = function () {
             var _this = this;
@@ -239,6 +251,11 @@
         { type: core.ElementRef },
         { type: core.NgZone }
     ]; };
+    ResizableDirective.propDecorators = {
+        resizingStart: [{ type: core.Output }],
+        resizingElement: [{ type: core.Output }],
+        resizingEnd: [{ type: core.Output }]
+    };
 
     var AngularElementsResizerModule = /** @class */ (function () {
         function AngularElementsResizerModule() {

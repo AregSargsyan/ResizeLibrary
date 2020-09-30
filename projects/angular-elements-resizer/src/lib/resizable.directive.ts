@@ -1,8 +1,13 @@
-import { Directive, ElementRef, Renderer2, NgZone } from '@angular/core';
+import { EventEmitter,Output,Directive, ElementRef, Renderer2, NgZone } from '@angular/core';
 import { fromEvent, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 export type ResizeDirection = 'top' | 'bottom' | 'right' | 'left' | 'top_right' | 'bottom_right' | 'bottom_left' | 'top_left' | false
+
+export interface EventInterface {
+  elementStyles: CSSStyleDeclaration;
+  mouseevent: MouseEvent;
+}
 
 @Directive({
   selector: '[resizable]',
@@ -34,6 +39,10 @@ export class ResizableDirective {
   mouseMoveonDocument$: Subscription
   mouseUpOnDocument$: Subscription
   onDestroy$ = new Subject<void>();
+
+  @Output() resizingStart = new EventEmitter<EventInterface>()
+  @Output() resizingElement = new EventEmitter<EventInterface>()
+  @Output() resizingEnd = new EventEmitter<EventInterface>()
 
   constructor(private renderer: Renderer2, private elementRef: ElementRef, private zone: NgZone) { }
 
@@ -112,6 +121,7 @@ export class ResizableDirective {
       this.isGrabbing = true
       this.previousX = event.clientX
       this.previousY = event.clientY
+      this.resizingStart.emit(this.outputData(event))
       event.preventDefault()
     }
   }
@@ -148,6 +158,7 @@ export class ResizableDirective {
         this.resizeElementFromTheLeft(event)
         this.resizeElementFromTheBottom(event)
       }
+      this.resizingElement.emit(this.outputData(event))
     }
     this.hostCoordinates = this.elementRef.nativeElement.getBoundingClientRect();
   }
@@ -221,9 +232,17 @@ export class ResizableDirective {
 
   }
 
-  private onMouseUp() {
+  private onMouseUp(event: MouseEvent) {
     if (this.isGrabbing) {
+      this.resizingEnd.emit(this.outputData(event))
       this.isGrabbing = false
+    }
+  }
+
+  private outputData(event): EventInterface {
+    return {
+      elementStyles: getComputedStyle(this.elementRef.nativeElement),
+      mouseevent: event
     }
   }
 
@@ -239,7 +258,7 @@ export class ResizableDirective {
       .subscribe((event: MouseEvent) => this.onMouseMove(event))
     this.mouseUpOnDocument$ = fromEvent(document, 'mouseup')
       .pipe(takeUntil(this.onDestroy$))
-      .subscribe(() => this.onMouseUp())
+      .subscribe((event: MouseEvent) => this.onMouseUp(event))
   }
 
   ngOnInit(): void {

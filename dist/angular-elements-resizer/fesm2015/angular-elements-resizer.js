@@ -1,4 +1,4 @@
-import { Directive, Renderer2, ElementRef, NgZone, NgModule } from '@angular/core';
+import { EventEmitter, Directive, Renderer2, ElementRef, NgZone, Output, NgModule } from '@angular/core';
 import { Subject, fromEvent } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -23,6 +23,9 @@ class ResizableDirective {
         this.hostMaxHeight = 0;
         this.hostMinHeight = 0;
         this.onDestroy$ = new Subject();
+        this.resizingStart = new EventEmitter();
+        this.resizingElement = new EventEmitter();
+        this.resizingEnd = new EventEmitter();
     }
     mouseMoveOnElement(event) {
         const elRightBorder = this.hostCoordinates.right;
@@ -92,6 +95,7 @@ class ResizableDirective {
             this.isGrabbing = true;
             this.previousX = event.clientX;
             this.previousY = event.clientY;
+            this.resizingStart.emit(this.outputData(event));
             event.preventDefault();
         }
     }
@@ -125,6 +129,7 @@ class ResizableDirective {
                 this.resizeElementFromTheLeft(event);
                 this.resizeElementFromTheBottom(event);
             }
+            this.resizingElement.emit(this.outputData(event));
         }
         this.hostCoordinates = this.elementRef.nativeElement.getBoundingClientRect();
     }
@@ -196,10 +201,17 @@ class ResizableDirective {
             }
         }
     }
-    onMouseUp() {
+    onMouseUp(event) {
         if (this.isGrabbing) {
+            this.resizingEnd.emit(this.outputData(event));
             this.isGrabbing = false;
         }
+    }
+    outputData(event) {
+        return {
+            elementStyles: getComputedStyle(this.elementRef.nativeElement),
+            mouseevent: event
+        };
     }
     setSubscriptions() {
         this.mouseMoveOnElement$ = fromEvent(this.elementRef.nativeElement, 'mousemove')
@@ -213,7 +225,7 @@ class ResizableDirective {
             .subscribe((event) => this.onMouseMove(event));
         this.mouseUpOnDocument$ = fromEvent(document, 'mouseup')
             .pipe(takeUntil(this.onDestroy$))
-            .subscribe(() => this.onMouseUp());
+            .subscribe((event) => this.onMouseUp(event));
     }
     ngOnInit() {
         this.hostCoordinates = this.elementRef.nativeElement.getBoundingClientRect();
@@ -234,6 +246,11 @@ ResizableDirective.ctorParameters = () => [
     { type: ElementRef },
     { type: NgZone }
 ];
+ResizableDirective.propDecorators = {
+    resizingStart: [{ type: Output }],
+    resizingElement: [{ type: Output }],
+    resizingEnd: [{ type: Output }]
+};
 
 class AngularElementsResizerModule {
 }

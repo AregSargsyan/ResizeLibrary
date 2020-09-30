@@ -1,6 +1,6 @@
 {
   "name": "angular-elements-resizer",
-  "version": "1.0.10",
+  "version": "2.1.1",
   "description": "Angular directive that allows element to be resized in all directions. Works without adding borders to the element.This directive is very light and will not trigger change Detection because it works outside of NgZone",
   "author": "Areg Sargsyan",
   "repository": {

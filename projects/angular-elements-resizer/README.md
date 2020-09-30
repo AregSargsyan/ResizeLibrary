@@ -50,6 +50,14 @@ export class AppComponent {
 ```
 **Note:**  The css part here is only for example (for visualization) you can use whatever styles you want
 
+## API
+
+| Outputs      | Type   | Description
+|----------------|--------|------------
+| resizingStart | () => EventInterface | This event is fired when resize is started (only one time) 
+| resizingElement | () => EventInterface | This event is fired when mouse move and size is changed 
+| resizingEnd | () => EventInterface | This event is fired when mouse up and resize is finished (only one time) 
+
 ## Further help
 
 In case of questions feel free to contact me https://linkedin.com/in/areg-sargsyan
